@@ -6194,7 +6194,7 @@ var Draft =
 	    _this.onDragLeave = _this._onDragLeave.bind(_this);
 
 	    // See `_restoreEditorDOM()`.
-	    _this.state = { containerKey: 0 };
+	    _this.state = { contentsKey: 0 };
 	    return _this;
 	  }
 
@@ -6263,7 +6263,6 @@ var Draft =
 	        'div',
 	        {
 	          className: cx('DraftEditor/editorContainer'),
-	          key: 'editor' + this.state.containerKey,
 	          ref: 'editorContainer' },
 	        React.createElement(
 	          'div',
@@ -6311,7 +6310,8 @@ var Draft =
 	            customStyleMap: _extends({}, DefaultDraftInlineStyle, this.props.customStyleMap),
 	            customStyleFn: this.props.customStyleFn,
 	            editorKey: this._editorKey,
-	            editorState: this.props.editorState
+	            editorState: this.props.editorState,
+	            key: 'contents' + this.state.contentsKey
 	          })
 	        )
 	      )
@@ -6426,7 +6426,7 @@ var Draft =
 	  DraftEditor.prototype._restoreEditorDOM = function _restoreEditorDOM(scrollPosition) {
 	    var _this3 = this;
 
-	    this.setState({ containerKey: this.state.containerKey + 1 }, function () {
+	    this.setState({ contentsKey: this.state.contentsKey + 1 }, function () {
 	      _this3._focus(scrollPosition);
 	    });
 	  };
