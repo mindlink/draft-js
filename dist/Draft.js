@@ -89,7 +89,7 @@ var Draft =
 	var convertFromDraftStateToRaw = __webpack_require__(78);
 	var convertFromHTMLToContentBlocks = __webpack_require__(41);
 	var convertFromRawToDraftState = __webpack_require__(79);
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var getDefaultKeyBinding = __webpack_require__(42);
 	var getVisibleSelectionRect = __webpack_require__(102);
 
@@ -1048,39 +1048,6 @@ var Draft =
 
 /***/ },
 /* 7 */
-/***/ function(module, exports) {
-
-	/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule generateRandomKey
-	 * @typechecks
-	 * 
-	 */
-
-	'use strict';
-
-	var seenKeys = {};
-	var MULTIPLIER = Math.pow(2, 24);
-
-	function generateRandomKey() {
-	  var key = void 0;
-	  while (key === undefined || seenKeys.hasOwnProperty(key) || !isNaN(+key)) {
-	    key = Math.floor(Math.random() * MULTIPLIER).toString(32);
-	  }
-	  seenKeys[key] = true;
-	  return key;
-	}
-
-	module.exports = generateRandomKey;
-
-/***/ },
-/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1324,6 +1291,39 @@ var Draft =
 	};
 
 	module.exports = mapObject(UserAgent, memoizeStringOnly);
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright (c) 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule generateRandomKey
+	 * @typechecks
+	 * 
+	 */
+
+	'use strict';
+
+	var seenKeys = {};
+	var MULTIPLIER = Math.pow(2, 24);
+
+	function generateRandomKey() {
+	  var key = void 0;
+	  while (key === undefined || seenKeys.hasOwnProperty(key) || !isNaN(+key)) {
+	    key = Math.floor(Math.random() * MULTIPLIER).toString(32);
+	  }
+	  seenKeys[key] = true;
+	  return key;
+	}
+
+	module.exports = generateRandomKey;
 
 /***/ },
 /* 9 */
@@ -2074,7 +2074,7 @@ var Draft =
 	var Immutable = __webpack_require__(2);
 	var SelectionState = __webpack_require__(10);
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var sanitizeDraftText = __webpack_require__(29);
 
 	var List = Immutable.List,
@@ -2547,7 +2547,7 @@ var Draft =
 
 	'use strict';
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var removeEntitiesAtEdges = __webpack_require__(53);
 
 	function getContentStateFragment(contentState, selectionState) {
@@ -2726,7 +2726,7 @@ var Draft =
 
 	'use strict';
 
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var isOSX = UserAgent.isPlatform('Mac OS X');
 
@@ -3806,7 +3806,7 @@ var Draft =
 	var Immutable = __webpack_require__(2);
 	var URI = __webpack_require__(123);
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var getSafeBodyFromHTML = __webpack_require__(46);
 	var invariant = __webpack_require__(3);
 	var nullthrows = __webpack_require__(5);
@@ -4315,7 +4315,7 @@ var Draft =
 
 	var KeyBindingUtil = __webpack_require__(25);
 	var Keys = __webpack_require__(30);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var isOSX = UserAgent.isPlatform('Mac OS X');
 	var isWindows = UserAgent.isPlatform('Windows');
@@ -4658,7 +4658,7 @@ var Draft =
 
 	'use strict';
 
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var invariant = __webpack_require__(3);
 
@@ -4725,7 +4725,7 @@ var Draft =
 
 	'use strict';
 
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var isOldIE = UserAgent.isBrowser('IE <= 9');
 
@@ -5786,7 +5786,7 @@ var Draft =
 	var SelectionState = __webpack_require__(10);
 	var Immutable = __webpack_require__(2);
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var moveBlockInContentState = __webpack_require__(116);
 
 	var List = Immutable.List,
@@ -6111,11 +6111,11 @@ var Draft =
 	var ReactDOM = __webpack_require__(17);
 	var Scroll = __webpack_require__(55);
 	var Style = __webpack_require__(31);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var cx = __webpack_require__(16);
 	var emptyFunction = __webpack_require__(33);
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var getDefaultKeyBinding = __webpack_require__(42);
 	var nullthrows = __webpack_require__(5);
 	var getScrollPosition = __webpack_require__(34);
@@ -6144,6 +6144,9 @@ var Draft =
 	var DraftEditor = function (_React$Component) {
 	  _inherits(DraftEditor, _React$Component);
 
+	  /**
+	   * Define proxies that can route events to the current handler.
+	   */
 	  function DraftEditor(props) {
 	    _classCallCheck(this, DraftEditor);
 
@@ -6161,6 +6164,7 @@ var Draft =
 	    _this._onBlur = _this._buildHandler('onBlur');
 	    _this._onCharacterData = _this._buildHandler('onCharacterData');
 	    _this._onCompositionEnd = _this._buildHandler('onCompositionEnd');
+	    _this._onCompositionUpdate = _this._buildHandler('onCompositionUpdate');
 	    _this._onCompositionStart = _this._buildHandler('onCompositionStart');
 	    _this._onCopy = _this._buildHandler('onCopy');
 	    _this._onCut = _this._buildHandler('onCut');
@@ -6202,11 +6206,6 @@ var Draft =
 	   * Build a method that will pass the event to the specified handler method.
 	   * This allows us to look up the correct handler function for the current
 	   * editor mode, if any has been specified.
-	   */
-
-
-	  /**
-	   * Define proxies that can route events to the current handler.
 	   */
 
 
@@ -6280,6 +6279,7 @@ var Draft =
 	            onBeforeInput: this._onBeforeInput,
 	            onBlur: this._onBlur,
 	            onCompositionEnd: this._onCompositionEnd,
+	            onCompositionUpdate: this._onCompositionUpdate,
 	            onCompositionStart: this._onCompositionStart,
 	            onCopy: this._onCopy,
 	            onCut: this._onCut,
@@ -6526,12 +6526,14 @@ var Draft =
 
 	'use strict';
 
+	var UserAgent = __webpack_require__(7);
 	var DraftModifier = __webpack_require__(4);
 	var EditorState = __webpack_require__(1);
 	var Keys = __webpack_require__(30);
 
 	var getEntityKeyForSelection = __webpack_require__(27);
 	var isSelectionAtLeafStart = __webpack_require__(51);
+	var isAndroid = UserAgent.isPlatform('Android');
 
 	/**
 	 * Millisecond delay to allow `compositionstart` to fire again upon
@@ -6555,6 +6557,7 @@ var Draft =
 	var stillComposing = false;
 	var textInputData = '';
 	var formerTextInputData = '';
+	var setTimeoutId = void 0;
 
 	var DraftEditorCompositionHandler = {
 	  onBeforeInput: function onBeforeInput(editor, e) {
@@ -6568,6 +6571,30 @@ var Draft =
 	  onCompositionStart: function onCompositionStart(editor, e) {
 	    formerTextInputData = e.data;
 	    stillComposing = true;
+	  },
+
+	  /**
+	   * Handle composition updates for Android.
+	   * This is because when autocomplete is enabled Android Chrome considers input to still be 
+	   * in the composing state until it is autocompleted or space is entered.
+	   */
+	  onCompositionUpdate: function onCompositionUpdate(editor, e) {
+	    if (isAndroid) {
+	      if (setTimeoutId) {
+	        clearTimeout(setTimeoutId);
+	      }
+
+	      resolved = false;
+	      formerTextInputData = textInputData;
+
+	      setTimeoutId = setTimeout(function () {
+	        if (!resolved && stillComposing) {
+	          stillComposing = false;
+	          textInputData = (textInputData || '') + data;
+	          DraftEditorCompositionHandler.resolveComposition(editor);
+	        }
+	      }, 1, e.data);
+	    }
 	  },
 
 	  /**
@@ -7385,7 +7412,7 @@ var Draft =
 
 	var React = __webpack_require__(13);
 	var ReactDOM = __webpack_require__(17);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	// In IE, spans with <br> tags render as two newlines. By rendering a span
 	// with only a newline character, we can be sure to render a single line.
@@ -7599,7 +7626,7 @@ var Draft =
 	var Immutable = __webpack_require__(2);
 
 	var convertFromHTMLtoContentBlocks = __webpack_require__(41);
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var getSafeBodyFromHTML = __webpack_require__(46);
 	var sanitizeDraftText = __webpack_require__(29);
 
@@ -8288,7 +8315,7 @@ var Draft =
 	var createCharacterList = __webpack_require__(80);
 	var decodeEntityRanges = __webpack_require__(81);
 	var decodeInlineStyleRanges = __webpack_require__(82);
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var Immutable = __webpack_require__(2);
 
 	var Map = Immutable.Map;
@@ -8498,7 +8525,7 @@ var Draft =
 	var BlockTree = __webpack_require__(35);
 	var DraftModifier = __webpack_require__(4);
 	var EditorState = __webpack_require__(1);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var getEntityKeyForSelection = __webpack_require__(27);
 	var isSelectionAtLeafStart = __webpack_require__(51);
@@ -8636,7 +8663,7 @@ var Draft =
 	'use strict';
 
 	var EditorState = __webpack_require__(1);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var getActiveElement = __webpack_require__(58);
 
@@ -8932,7 +8959,7 @@ var Draft =
 	var DraftModifier = __webpack_require__(4);
 	var DraftOffsetKey = __webpack_require__(20);
 	var EditorState = __webpack_require__(1);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var findAncestorOffsetKey = __webpack_require__(26);
 	var nullthrows = __webpack_require__(5);
@@ -9083,7 +9110,7 @@ var Draft =
 	var KeyBindingUtil = __webpack_require__(25);
 	var Keys = __webpack_require__(30);
 	var SecondaryClipboard = __webpack_require__(74);
-	var UserAgent = __webpack_require__(8);
+	var UserAgent = __webpack_require__(7);
 
 	var keyCommandBackspaceToStartOfLine = __webpack_require__(105);
 	var keyCommandBackspaceWord = __webpack_require__(106);
@@ -10056,7 +10083,7 @@ var Draft =
 
 	var BlockMapBuilder = __webpack_require__(14);
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var insertIntoList = __webpack_require__(50);
 	var invariant = __webpack_require__(3);
 
@@ -11085,7 +11112,7 @@ var Draft =
 
 	var Immutable = __webpack_require__(2);
 
-	var generateRandomKey = __webpack_require__(7);
+	var generateRandomKey = __webpack_require__(8);
 	var invariant = __webpack_require__(3);
 
 	var Map = Immutable.Map;
