@@ -42,6 +42,7 @@ import type {DraftEditorModes} from 'DraftEditorModes';
 import type {DraftScrollPosition} from 'DraftScrollPosition';
 
 const isIE = UserAgent.isBrowser('IE');
+var isAndroid = UserAgent.isPlatform('Android');
 
 // IE does not support the `input` event on contentEditable, so we can't
 // observe spellcheck behavior.
@@ -57,9 +58,15 @@ const handlerMap = {
   'render': null,
 };
 
-type State = {
-  contentsKey: number,
-};
+if (isAndroid) {
+  type State = {
+    contentsKey: number,
+  };
+} else {
+  type State = {
+    containerKey: number,
+  };
+}
 
 /**
  * `DraftEditor` is the root editor component. It composes a `contentEditable`
@@ -174,7 +181,7 @@ class DraftEditor extends React.Component {
     this.onDragLeave = this._onDragLeave.bind(this);
 
     // See `_restoreEditorDOM()`.
-    this.state = {contentsKey: 0};
+    this.state = isAndroid ? {contentsKey: 0} : {containerKey: 0};
   }
 
   /**
@@ -228,70 +235,137 @@ class DraftEditor extends React.Component {
       wordWrap: 'break-word',
     };
 
-    return (
-      <div className={rootClass}>
-        {this._renderPlaceholder()}
-        <div
-          className={cx('DraftEditor/editorContainer')}
-          ref="editorContainer">
-          <div
-            aria-activedescendant={
-              readOnly ? null : this.props.ariaActiveDescendantID
-            }
-            aria-autocomplete={readOnly ? null : this.props.ariaAutoComplete}
-            aria-describedby={
-              this._showPlaceholder() ? this._placeholderAccessibilityID : null
-            }
-            aria-expanded={readOnly ? null : this.props.ariaExpanded}
-            aria-haspopup={readOnly ? null : this.props.ariaHasPopup}
-            aria-label={this.props.ariaLabel}
-            aria-owns={readOnly ? null : this.props.ariaOwneeID}
-            className={cx('public/DraftEditor/content')}
-            contentEditable={!readOnly}
-            data-testid={this.props.webDriverTestID}
-            onBeforeInput={this._onBeforeInput}
-            onBlur={this._onBlur}
-            onCompositionEnd={this._onCompositionEnd}
-            onCompositionUpdate={this._onCompositionUpdate}
-            onCompositionStart={this._onCompositionStart}
-            onCopy={this._onCopy}
-            onCut={this._onCut}
-            onDragEnd={this._onDragEnd}
-            onDragEnter={this.onDragEnter}
-            onDragLeave={this.onDragLeave}
-            onDragOver={this._onDragOver}
-            onDragStart={this._onDragStart}
-            onDrop={this._onDrop}
-            onFocus={this._onFocus}
-            onInput={this._onInput}
-            onKeyDown={this._onKeyDown}
-            onKeyPress={this._onKeyPress}
-            onKeyUp={this._onKeyUp}
-            onMouseUp={this._onMouseUp}
-            onPaste={this._onPaste}
-            onSelect={this._onSelect}
-            ref="editor"
-            role={readOnly ? null : (this.props.role || 'textbox')}
-            spellCheck={allowSpellCheck && this.props.spellCheck}
-            style={contentStyle}
-            suppressContentEditableWarning
-            tabIndex={this.props.tabIndex}>
-            <DraftEditorContents
-              blockRenderMap={this.props.blockRenderMap}
-              blockRendererFn={this.props.blockRendererFn}
-              blockStyleFn={this.props.blockStyleFn}
-              customStyleMap={
-                {...DefaultDraftInlineStyle, ...this.props.customStyleMap}
-              }
-              customStyleFn={this.props.customStyleFn}
-              editorKey={this._editorKey}
-              editorState={this.props.editorState}
-              key={'contents' + this.state.contentsKey}
-            />
+    if (isAndroid) {
+        return (
+          <div className={rootClass}>
+            {this._renderPlaceholder()}
+            <div
+              className={cx('DraftEditor/editorContainer')}
+              ref="editorContainer">
+              <div
+                aria-activedescendant={
+                  readOnly ? null : this.props.ariaActiveDescendantID
+                }
+                aria-autocomplete={readOnly ? null : this.props.ariaAutoComplete}
+                aria-describedby={
+                  this._showPlaceholder() ? this._placeholderAccessibilityID : null
+                }
+                aria-expanded={readOnly ? null : this.props.ariaExpanded}
+                aria-haspopup={readOnly ? null : this.props.ariaHasPopup}
+                aria-label={this.props.ariaLabel}
+                aria-owns={readOnly ? null : this.props.ariaOwneeID}
+                className={cx('public/DraftEditor/content')}
+                contentEditable={!readOnly}
+                data-testid={this.props.webDriverTestID}
+                onBeforeInput={this._onBeforeInput}
+                onBlur={this._onBlur}
+                onCompositionEnd={this._onCompositionEnd}
+                onCompositionUpdate={this._onCompositionUpdate}
+                onCompositionStart={this._onCompositionStart}
+                onCopy={this._onCopy}
+                onCut={this._onCut}
+                onDragEnd={this._onDragEnd}
+                onDragEnter={this.onDragEnter}
+                onDragLeave={this.onDragLeave}
+                onDragOver={this._onDragOver}
+                onDragStart={this._onDragStart}
+                onDrop={this._onDrop}
+                onFocus={this._onFocus}
+                onInput={this._onInput}
+                onKeyDown={this._onKeyDown}
+                onKeyPress={this._onKeyPress}
+                onKeyUp={this._onKeyUp}
+                onMouseUp={this._onMouseUp}
+                onPaste={this._onPaste}
+                onSelect={this._onSelect}
+                ref="editor"
+                role={readOnly ? null : (this.props.role || 'textbox')}
+                spellCheck={allowSpellCheck && this.props.spellCheck}
+                style={contentStyle}
+                suppressContentEditableWarning
+                tabIndex={this.props.tabIndex}>
+                <DraftEditorContents
+                  blockRenderMap={this.props.blockRenderMap}
+                  blockRendererFn={this.props.blockRendererFn}
+                  blockStyleFn={this.props.blockStyleFn}
+                  customStyleMap={
+                    {...DefaultDraftInlineStyle, ...this.props.customStyleMap}
+                  }
+                  customStyleFn={this.props.customStyleFn}
+                  editorKey={this._editorKey}
+                  editorState={this.props.editorState}
+                  key={'contents' + this.state.contentsKey}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    );
+      );
+    }
+
+    return (
+          <div className={rootClass}>
+            {this._renderPlaceholder()}
+            <div
+              className={cx('DraftEditor/editorContainer')}
+              key={'editor' + this.state.containerKey}
+              ref="editorContainer">
+              <div
+                aria-activedescendant={
+                  readOnly ? null : this.props.ariaActiveDescendantID
+                }
+                aria-autocomplete={readOnly ? null : this.props.ariaAutoComplete}
+                aria-describedby={
+                  this._showPlaceholder() ? this._placeholderAccessibilityID : null
+                }
+                aria-expanded={readOnly ? null : this.props.ariaExpanded}
+                aria-haspopup={readOnly ? null : this.props.ariaHasPopup}
+                aria-label={this.props.ariaLabel}
+                aria-owns={readOnly ? null : this.props.ariaOwneeID}
+                className={cx('public/DraftEditor/content')}
+                contentEditable={!readOnly}
+                data-testid={this.props.webDriverTestID}
+                onBeforeInput={this._onBeforeInput}
+                onBlur={this._onBlur}
+                onCompositionEnd={this._onCompositionEnd}
+                onCompositionUpdate={this._onCompositionUpdate}
+                onCompositionStart={this._onCompositionStart}
+                onCopy={this._onCopy}
+                onCut={this._onCut}
+                onDragEnd={this._onDragEnd}
+                onDragEnter={this.onDragEnter}
+                onDragLeave={this.onDragLeave}
+                onDragOver={this._onDragOver}
+                onDragStart={this._onDragStart}
+                onDrop={this._onDrop}
+                onFocus={this._onFocus}
+                onInput={this._onInput}
+                onKeyDown={this._onKeyDown}
+                onKeyPress={this._onKeyPress}
+                onKeyUp={this._onKeyUp}
+                onMouseUp={this._onMouseUp}
+                onPaste={this._onPaste}
+                onSelect={this._onSelect}
+                ref="editor"
+                role={readOnly ? null : (this.props.role || 'textbox')}
+                spellCheck={allowSpellCheck && this.props.spellCheck}
+                style={contentStyle}
+                suppressContentEditableWarning
+                tabIndex={this.props.tabIndex}>
+                <DraftEditorContents
+                  blockRenderMap={this.props.blockRenderMap}
+                  blockRendererFn={this.props.blockRendererFn}
+                  blockStyleFn={this.props.blockStyleFn}
+                  customStyleMap={
+                    {...DefaultDraftInlineStyle, ...this.props.customStyleMap}
+                  }
+                  customStyleFn={this.props.customStyleFn}
+                  editorKey={this._editorKey}
+                  editorState={this.props.editorState}
+                />
+              </div>
+            </div>
+          </div>
+      );
   }
 
   componentDidMount(): void {
@@ -393,9 +467,15 @@ class DraftEditor extends React.Component {
    * occurs on a version of the DOM that is synchronized with our EditorState.
    */
   _restoreEditorDOM(scrollPosition?: DraftScrollPosition): void {
-    this.setState({contentsKey: this.state.contentsKey + 1}, () => {
-      this._focus(scrollPosition);
-    });
+    if (isAndroid) {
+      this.setState({contentsKey: this.state.contentsKey + 1}, () => {
+        this._focus(scrollPosition);
+      });
+    } else {
+      this.setState({containerKey: this.state.containerKey + 1}, () => {
+        this._focus(scrollPosition);
+      });
+    }
   }
 
   /**

@@ -6121,6 +6121,7 @@ var Draft =
 	var getScrollPosition = __webpack_require__(34);
 
 	var isIE = UserAgent.isBrowser('IE');
+	var isAndroid = UserAgent.isPlatform('Android');
 
 	// IE does not support the `input` event on contentEditable, so we can't
 	// observe spellcheck behavior.
@@ -6136,11 +6137,14 @@ var Draft =
 	  'render': null
 	};
 
+	if (isAndroid) {} else {}
+
 	/**
 	 * `DraftEditor` is the root editor component. It composes a `contentEditable`
 	 * div, and provides a wide variety of useful function props for managing the
 	 * state of the editor. See `DraftEditorProps` for details.
 	 */
+
 	var DraftEditor = function (_React$Component) {
 	  _inherits(DraftEditor, _React$Component);
 
@@ -6198,7 +6202,7 @@ var Draft =
 	    _this.onDragLeave = _this._onDragLeave.bind(_this);
 
 	    // See `_restoreEditorDOM()`.
-	    _this.state = { contentsKey: 0 };
+	    _this.state = isAndroid ? { contentsKey: 0 } : { containerKey: 0 };
 	    return _this;
 	  }
 
@@ -6254,6 +6258,71 @@ var Draft =
 	      wordWrap: 'break-word'
 	    };
 
+	    if (isAndroid) {
+	      return React.createElement(
+	        'div',
+	        { className: rootClass },
+	        this._renderPlaceholder(),
+	        React.createElement(
+	          'div',
+	          {
+	            className: cx('DraftEditor/editorContainer'),
+	            ref: 'editorContainer' },
+	          React.createElement(
+	            'div',
+	            {
+	              'aria-activedescendant': readOnly ? null : this.props.ariaActiveDescendantID,
+	              'aria-autocomplete': readOnly ? null : this.props.ariaAutoComplete,
+	              'aria-describedby': this._showPlaceholder() ? this._placeholderAccessibilityID : null,
+	              'aria-expanded': readOnly ? null : this.props.ariaExpanded,
+	              'aria-haspopup': readOnly ? null : this.props.ariaHasPopup,
+	              'aria-label': this.props.ariaLabel,
+	              'aria-owns': readOnly ? null : this.props.ariaOwneeID,
+	              className: cx('public/DraftEditor/content'),
+	              contentEditable: !readOnly,
+	              'data-testid': this.props.webDriverTestID,
+	              onBeforeInput: this._onBeforeInput,
+	              onBlur: this._onBlur,
+	              onCompositionEnd: this._onCompositionEnd,
+	              onCompositionUpdate: this._onCompositionUpdate,
+	              onCompositionStart: this._onCompositionStart,
+	              onCopy: this._onCopy,
+	              onCut: this._onCut,
+	              onDragEnd: this._onDragEnd,
+	              onDragEnter: this.onDragEnter,
+	              onDragLeave: this.onDragLeave,
+	              onDragOver: this._onDragOver,
+	              onDragStart: this._onDragStart,
+	              onDrop: this._onDrop,
+	              onFocus: this._onFocus,
+	              onInput: this._onInput,
+	              onKeyDown: this._onKeyDown,
+	              onKeyPress: this._onKeyPress,
+	              onKeyUp: this._onKeyUp,
+	              onMouseUp: this._onMouseUp,
+	              onPaste: this._onPaste,
+	              onSelect: this._onSelect,
+	              ref: 'editor',
+	              role: readOnly ? null : this.props.role || 'textbox',
+	              spellCheck: allowSpellCheck && this.props.spellCheck,
+	              style: contentStyle,
+	              suppressContentEditableWarning: true,
+	              tabIndex: this.props.tabIndex },
+	            React.createElement(DraftEditorContents, {
+	              blockRenderMap: this.props.blockRenderMap,
+	              blockRendererFn: this.props.blockRendererFn,
+	              blockStyleFn: this.props.blockStyleFn,
+	              customStyleMap: _extends({}, DefaultDraftInlineStyle, this.props.customStyleMap),
+	              customStyleFn: this.props.customStyleFn,
+	              editorKey: this._editorKey,
+	              editorState: this.props.editorState,
+	              key: 'contents' + this.state.contentsKey
+	            })
+	          )
+	        )
+	      );
+	    }
+
 	    return React.createElement(
 	      'div',
 	      { className: rootClass },
@@ -6262,6 +6331,7 @@ var Draft =
 	        'div',
 	        {
 	          className: cx('DraftEditor/editorContainer'),
+	          key: 'editor' + this.state.containerKey,
 	          ref: 'editorContainer' },
 	        React.createElement(
 	          'div',
@@ -6310,8 +6380,7 @@ var Draft =
 	            customStyleMap: _extends({}, DefaultDraftInlineStyle, this.props.customStyleMap),
 	            customStyleFn: this.props.customStyleFn,
 	            editorKey: this._editorKey,
-	            editorState: this.props.editorState,
-	            key: 'contents' + this.state.contentsKey
+	            editorState: this.props.editorState
 	          })
 	        )
 	      )
@@ -6426,9 +6495,15 @@ var Draft =
 	  DraftEditor.prototype._restoreEditorDOM = function _restoreEditorDOM(scrollPosition) {
 	    var _this3 = this;
 
-	    this.setState({ contentsKey: this.state.contentsKey + 1 }, function () {
-	      _this3._focus(scrollPosition);
-	    });
+	    if (isAndroid) {
+	      this.setState({ contentsKey: this.state.contentsKey + 1 }, function () {
+	        _this3._focus(scrollPosition);
+	      });
+	    } else {
+	      this.setState({ containerKey: this.state.containerKey + 1 }, function () {
+	        _this3._focus(scrollPosition);
+	      });
+	    }
 	  };
 
 	  /**
