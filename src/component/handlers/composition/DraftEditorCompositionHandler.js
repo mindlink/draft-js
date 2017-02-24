@@ -193,7 +193,7 @@ var DraftEditorCompositionHandler = {
 
     let contentState = editorState.getCurrentContent();
     let selection = editorState.getSelection();
-    if (formerComposedChars && selection.isCollapsed()) {
+    if (isAndroid && formerComposedChars && selection.isCollapsed()) {
       let anchorOffset = selection.getAnchorOffset() - formerComposedChars.length;
       if (anchorOffset < 0) {
         anchorOffset = 0;

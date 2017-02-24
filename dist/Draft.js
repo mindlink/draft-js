@@ -6697,7 +6697,7 @@ var Draft =
 
 	    var contentState = editorState.getCurrentContent();
 	    var selection = editorState.getSelection();
-	    if (formerComposedChars && selection.isCollapsed()) {
+	    if (isAndroid && formerComposedChars && selection.isCollapsed()) {
 	      var anchorOffset = selection.getAnchorOffset() - formerComposedChars.length;
 	      if (anchorOffset < 0) {
 	        anchorOffset = 0;
