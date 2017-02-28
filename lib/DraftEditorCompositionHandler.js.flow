@@ -75,7 +75,7 @@ var DraftEditorCompositionHandler = {
       resolved = false;
       formerTextInputData = textInputData;
 
-      setTimeoutId = setTimeout(() => {
+      setTimeoutId = setTimeout(data => {
         if (!resolved && stillComposing) {
           stillComposing = false;
           textInputData = (textInputData || '') + data;

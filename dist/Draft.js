@@ -6662,7 +6662,7 @@ var Draft =
 	      resolved = false;
 	      formerTextInputData = textInputData;
 
-	      setTimeoutId = setTimeout(function () {
+	      setTimeoutId = setTimeout(function (data) {
 	        if (!resolved && stillComposing) {
 	          stillComposing = false;
 	          textInputData = (textInputData || '') + data;
