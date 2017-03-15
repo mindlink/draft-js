@@ -40,6 +40,7 @@ import type {DraftEditorModes} from 'DraftEditorModes';
 import type {DraftEditorProps, DraftEditorDefaultProps} from 'DraftEditorProps';
 import type {DraftScrollPosition} from 'DraftScrollPosition';
 
+const isAndroid = UserAgent.isPlatform('Android');
 const isIE = UserAgent.isBrowser('IE');
 
 // IE does not support the `input` event on contentEditable, so we can't
@@ -58,6 +59,7 @@ const handlerMap = {
 
 type State = {
   containerKey: number,
+  contentsKey: number,
 };
 
 /**
@@ -171,7 +173,7 @@ class DraftEditor extends React.Component {
     this.onDragLeave = this._onDragLeave.bind(this);
 
     // See `_restoreEditorDOM()`.
-    this.state = {containerKey: 0};
+    this.state = {containerKey: 0, contentsKey: 0};
   }
 
   /**
@@ -230,7 +232,7 @@ class DraftEditor extends React.Component {
         {this._renderPlaceholder()}
         <div
           className={cx('DraftEditor/editorContainer')}
-          key={'editor' + this.state.containerKey}
+          key={isAndroid ? undefined : 'editor' + this.state.containerKey}
           ref="editorContainer">
           <div
             aria-activedescendant={
@@ -283,6 +285,7 @@ class DraftEditor extends React.Component {
               customStyleFn={this.props.customStyleFn}
               editorKey={this._editorKey}
               editorState={this.props.editorState}
+              key={isAndroid ? 'contents' + this.state.contentsKey : undefined}
             />
           </div>
         </div>
@@ -389,7 +392,9 @@ class DraftEditor extends React.Component {
    * occurs on a version of the DOM that is synchronized with our EditorState.
    */
   _restoreEditorDOM(scrollPosition?: DraftScrollPosition): void {
-    this.setState({containerKey: this.state.containerKey + 1}, () => {
+    const containerKey = !isAndroid ? this.state.containerKey + 1 : this.state.containerKey;
+    const contentsKey = isAndroid ? this.state.contentsKey + 1 : this.state.contentsKey;
+    this.setState({containerKey: containerKey, contentsKey: contentsKey}, () => {
       this._focus(scrollPosition);
     });
   }
