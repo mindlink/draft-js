@@ -98,6 +98,7 @@ class DraftEditor extends React.Component {
   _onBlur: Function;
   _onCharacterData: Function;
   _onCompositionEnd: Function;
+  _onCompositionUpdate: Function;
   _onCompositionStart: Function;
   _onCopy: Function;
   _onCut: Function;
@@ -142,6 +143,7 @@ class DraftEditor extends React.Component {
     this._onBlur = this._buildHandler('onBlur');
     this._onCharacterData = this._buildHandler('onCharacterData');
     this._onCompositionEnd = this._buildHandler('onCompositionEnd');
+    this._onCompositionUpdate = this._buildHandler('onCompositionUpdate');
     this._onCompositionStart = this._buildHandler('onCompositionStart');
     this._onCopy = this._buildHandler('onCopy');
     this._onCut = this._buildHandler('onCut');
@@ -252,6 +254,7 @@ class DraftEditor extends React.Component {
             onBeforeInput={this._onBeforeInput}
             onBlur={this._onBlur}
             onCompositionEnd={this._onCompositionEnd}
+            onCompositionUpdate={this._onCompositionUpdate}
             onCompositionStart={this._onCompositionStart}
             onCopy={this._onCopy}
             onCut={this._onCut}

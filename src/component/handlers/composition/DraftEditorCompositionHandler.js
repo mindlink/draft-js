@@ -45,6 +45,7 @@ let resolved = false;
 let stillComposing = false;
 let textInputData = '';
 let formerTextInputData = '';
+let setTimeoutId;
 
 var DraftEditorCompositionHandler = {
   onBeforeInput: function(editor: DraftEditor, e: SyntheticInputEvent): void {
@@ -58,6 +59,32 @@ var DraftEditorCompositionHandler = {
   onCompositionStart: function(editor: DraftEditor, e: SyntheticInputEvent): void {
     formerTextInputData = e.data;
     stillComposing = true;
+  },
+
+   /**
+   * Handle composition updates for Android.
+   * This is because when autocomplete is enabled Android Chrome considers input to still be 
+   * in the composing state until it is autocompleted or space is entered.
+   */
+  onCompositionUpdate: function(editor: DraftEditor, e: SyntheticInputEvent): void {
+    if (!isAndroid) {
+      return;
+    }
+
+    if (setTimeoutId) {
+      clearTimeout(setTimeoutId);
+    }
+
+    resolved = false;
+    formerTextInputData = textInputData;
+
+    setTimeoutId = setTimeout((data) => {
+      if (!resolved && stillComposing) {
+        stillComposing = false;
+        textInputData = (textInputData || '') + data;
+        DraftEditorCompositionHandler.resolveComposition(editor);
+      }
+    }, 1, e.data);
   },
 
   /**
