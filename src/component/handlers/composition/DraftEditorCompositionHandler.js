@@ -18,9 +18,11 @@ import type DraftEditor from 'DraftEditor.react';
 const DraftModifier = require('DraftModifier');
 const EditorState = require('EditorState');
 const Keys = require('Keys');
+const UserAgent = require('UserAgent');
 
 const getEntityKeyForSelection = require('getEntityKeyForSelection');
 const isSelectionAtLeafStart = require('isSelectionAtLeafStart');
+const isAndroid = UserAgent.isPlatform('Android');
 
 /**
  * Millisecond delay to allow `compositionstart` to fire again upon
@@ -43,6 +45,8 @@ const RESOLVE_DELAY = 20;
 let resolved = false;
 let stillComposing = false;
 let textInputData = '';
+let setTimeoutId;
+let formerTextInputData = '';
 
 var DraftEditorCompositionHandler = {
   onBeforeInput: function(editor: DraftEditor, e: SyntheticInputEvent<>): void {
@@ -53,8 +57,35 @@ var DraftEditorCompositionHandler = {
    * A `compositionstart` event has fired while we're still in composition
    * mode. Continue the current composition session to prevent a re-render.
    */
-  onCompositionStart: function(editor: DraftEditor): void {
+  onCompositionStart: function(editor: DraftEditor, e: SyntheticInputEvent): void {
+    formerTextInputData = e.data;
     stillComposing = true;
+  },
+
+  /**
+   * Handle composition updates for Android.
+   * This is because when autocomplete is enabled Android Chrome considers input to still be 
+   * in the composing state until it is autocompleted or space is entered.
+   */
+  onCompositionUpdate: function(editor: DraftEditor, e: SyntheticInputEvent): void {
+    if (!isAndroid) {
+      return;
+    }
+
+    if (setTimeoutId) {
+      clearTimeout(setTimeoutId);
+    }
+
+    resolved = false;
+    formerTextInputData = textInputData;
+
+    setTimeoutId = setTimeout((data) => {
+      if (!resolved && stillComposing) {
+        stillComposing = false;
+        textInputData = (textInputData || '') + data;
+        DraftEditorCompositionHandler.resolveComposition(editor);
+      }
+    }, 1, e.data);
   },
 
   /**
@@ -137,6 +168,9 @@ var DraftEditorCompositionHandler = {
     const composedChars = textInputData;
     textInputData = '';
 
+    const formerComposedChars = formerTextInputData;
+    formerTextInputData = '';
+
     const editorState = EditorState.set(editor._latestEditorState, {
       inCompositionMode: false,
     });
@@ -159,12 +193,28 @@ var DraftEditorCompositionHandler = {
 
     editor.exitCurrentMode();
 
+    let contentState = editorState.getCurrentContent();
+    let selection = editorState.getSelection();
+    if (isAndroid && formerComposedChars && selection.isCollapsed()) {
+      let anchorOffset = selection.getAnchorOffset() - formerComposedChars.length;
+      if (anchorOffset < 0) {
+        anchorOffset = 0;
+      }
+      const toRemoveSel = selection.merge({anchorOffset});
+      contentState = DraftModifier.removeRange(
+        editorState.getCurrentContent(),
+        toRemoveSel,
+        'backward',
+      );
+      selection = contentState.getSelectionAfter();
+    }
+
     if (composedChars) {
       // If characters have been composed, re-rendering with the update
       // is sufficient to reset the editor.
-      const contentState = DraftModifier.replaceText(
-        editorState.getCurrentContent(),
-        editorState.getSelection(),
+      contentState = DraftModifier.replaceText(
+        contentState,
+        selection,
         composedChars,
         currentStyle,
         entityKey,

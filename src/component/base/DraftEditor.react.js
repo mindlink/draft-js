@@ -41,6 +41,7 @@ const getScrollPosition = require('getScrollPosition');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
+const isAndroid = UserAgent.isPlatform('Android');
 const isIE = UserAgent.isBrowser('IE');
 
 // IE does not support the `input` event on contentEditable, so we can't
@@ -58,6 +59,7 @@ const handlerMap = {
 };
 
 type State = {
+  contentsKey: number,
   contentsKey: number,
 };
 
@@ -95,6 +97,7 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
   _onBlur: Function;
   _onCharacterData: Function;
   _onCompositionEnd: Function;
+  _onCompositionUpdate: Function;
   _onCompositionStart: Function;
   _onCopy: Function;
   _onCut: Function;
@@ -142,6 +145,7 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
     this._onBlur = this._buildHandler('onBlur');
     this._onCharacterData = this._buildHandler('onCharacterData');
     this._onCompositionEnd = this._buildHandler('onCompositionEnd');
+    this._onCompositionUpdate = this._buildHandler('onCompositionUpdate');
     this._onCompositionStart = this._buildHandler('onCompositionStart');
     this._onCopy = this._buildHandler('onCopy');
     this._onCut = this._buildHandler('onCut');
@@ -161,8 +165,8 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
 
     this.getEditorKey = () => this._editorKey;
 
-    // See `restoreEditorDOM()`.
-    this.state = {contentsKey: 0};
+    // See `_restoreEditorDOM()`.
+    this.state = {containerKey: 0, contentsKey: 0};
   }
 
   /**
@@ -263,6 +267,7 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
             onBeforeInput={this._onBeforeInput}
             onBlur={this._onBlur}
             onCompositionEnd={this._onCompositionEnd}
+            onCompositionUpdate={this._onCompositionUpdate}
             onCompositionStart={this._onCompositionStart}
             onCopy={this._onCopy}
             onCut={this._onCut}
@@ -301,7 +306,7 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
               customStyleFn={this.props.customStyleFn}
               editorKey={this._editorKey}
               editorState={this.props.editorState}
-              key={'contents' + this.state.contentsKey}
+              key={isAndroid ? 'contents' + this.state.contentsKey : undefined}
               textDirectionality={this.props.textDirectionality}
             />
           </div>
@@ -423,7 +428,8 @@ class DraftEditor extends React.Component<DraftEditorProps, State> {
    * our EditorState.
    */
   restoreEditorDOM = (scrollPosition?: DraftScrollPosition): void => {
-    this.setState({contentsKey: this.state.contentsKey + 1}, () => {
+    const contentsKey = isAndroid ? this.state.contentsKey + 1 : this.state.contentsKey;
+    this.setState({contentsKey: contentsKey}, () => {
       this.focus(scrollPosition);
     });
   };
