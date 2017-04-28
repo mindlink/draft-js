@@ -30,9 +30,9 @@
     "test-ci": "NODE_ENV=test npm run lint && npm run flow && npm run test"
   },
   "dependencies": {
-    "fbjs": "git://github.com/mindlink/fbjs.git#7a50638a3586c681e53200620ca203607f3a17cf",
     "immutable": "~3.7.4",
-    "object-assign": "^4.1.0"
+    "object-assign": "^4.1.0",
+    "fbjs": "git+https://github.com/mindlink/fbjs.git#e35fe07424818fdf2c19407496bff66fb1228931"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-rc",

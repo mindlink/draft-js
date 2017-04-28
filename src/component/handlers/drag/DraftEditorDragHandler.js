@@ -43,6 +43,13 @@ function getSelectionForEvent(
   } else if (event.rangeParent) {
     node = event.rangeParent;
     offset = event.rangeOffset;
+  } else if (window.getSelection) {
+    node = event.target;
+    var selection = window.getSelection();
+    var range = selection.getRangeAt ? selection.getRangeAt(0) : selection.createRange();
+    
+    // If range is collapsed, drag and drop occurred within the input. Otherwise is from outside the input.
+    offset = range.collapsed ? selection.focusOffset : event.srcElement.innerText.length;
   } else {
     return null;
   }
@@ -125,6 +132,13 @@ var DraftEditorDragHandler = {
       insertTextAtSelection(editorState, dropSelection, data.getText())
     );
   },
+
+  /**
+   * Handle on drag over event.
+   */
+  onDragOver: function onDragOver(editor, e) {
+    e.preventDefault();
+  }
 
 };
 
