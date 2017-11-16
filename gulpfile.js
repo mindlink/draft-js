@@ -232,5 +232,5 @@ gulp.task('dev', function() {
 });
 
 gulp.task('default', function(cb) {
-  unSequence('clean', ['modules', 'flow'], ['dist', 'dist:min'], cb);
+  runSequence('clean', ['modules', 'flow'], ['dist', 'dist:min'], cb);
 });
