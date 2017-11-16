@@ -33,7 +33,7 @@
     "test-ci": "NODE_ENV=test npm run lint && npm run flow && npm run test"
   },
   "dependencies": {
-    "fbjs": "https://github.com/mindlink/fbjs.git#762dbb0134e311f5c608e095e4a7c5f8b661e110",
+    "fbjs": "https://github.com/mindlink/fbjs.git#d19f4fce62544dc57b2ba463d472eeb9af45b517",
     "immutable": "~3.7.4",
     "object-assign": "^4.1.0"
   },
