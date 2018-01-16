@@ -94,14 +94,14 @@ function editOnInput(editor: DraftEditor): void {
   var domText = anchorNode.textContent;
   var editorState = editor._latestEditorState;
   var offsetKey = nullthrows(findAncestorOffsetKey(anchorNode));
-  var {blockKey, decoratorKey, leafKey} = DraftOffsetKey.decode(offsetKey);
+  var {domSelectionAnchorBlockKey, decoratorKey, leafKey} = DraftOffsetKey.decode(offsetKey);
 
   var {start, end} = editorState
-    .getBlockTree(blockKey)
+    .getBlockTree(domSelectionAnchorBlockKey)
     .getIn([decoratorKey, 'leaves', leafKey]);
 
   var content = editorState.getCurrentContent();
-  var block = content.getBlockForKey(blockKey);
+  var block = content.getBlockForKey(domSelectionAnchorBlockKey);
   var modelText = block.getText().slice(start, end);
 
   // Special-case soft newlines here. If the DOM text ends in a soft newline,
@@ -113,7 +113,10 @@ function editOnInput(editor: DraftEditor): void {
   }
 
   // No change -- the DOM is up to date. Nothing to do here.
-  if (domText === modelText) {
+  // If draft and DOM selection are out of sync on different blocks,
+  // we still need to apply the change.
+  var draftSelection = editorState.getSelection();
+  if (domText === modelText && domSelectionAnchorBlockKey === draftSelection.anchorKey) {
     // This can be buggy for some Android keyboards because they don't fire
     // standard onkeydown/pressed events and only fired editOnInput
     // so domText is already changed by the browser and ends up being equal
@@ -123,12 +126,31 @@ function editOnInput(editor: DraftEditor): void {
 
   var selection = editorState.getSelection();
 
-  // We'll replace the entire leaf with the text content of the target.
-  var targetRange = selection.merge({
-    anchorOffset: start,
-    focusOffset: end,
-    isBackward: false,
-  });
+  var targetRange;
+
+  // Since the draft and DOM selection are out of sync and on different blocks,
+  // we take a range between the start of the draft selection and the end of
+  // the DOM selection.
+  if (draftSelection.anchorKey !== domSelectionAnchorBlockKey) {
+    targetRange = draftSelection.merge({
+      focusKey: domSelectionAnchorBlockKey,
+      focusOffset: domSelection.anchorOffset,
+      isBackward: true
+    });
+
+    // We need to delete the target range, and the DOM anchor node text will
+    // end up in the correct place. TODO: Would be better to use remove range
+    // instead of replace text in this case. We want to keep the result we get
+    // from this operation, though.
+    domText = '';
+  } else {
+    // We'll replace the entire leaf with the text content of the target.
+    targetRange = selection.merge({
+      anchorOffset: start,
+      focusOffset: end,
+      isBackward: false,
+    });
+  }
 
   const entityKey = block.getEntityAt(start);
   const entity = entityKey && content.getEntity(entityKey);
