@@ -26,7 +26,7 @@ const isEventHandled = require('isEventHandled');
 var isSelectionAtLeafStart = require('isSelectionAtLeafStart');
 var nullthrows = require('nullthrows');
 var setImmediate = require('setImmediate');
-var keyCommandInsertNewLine = require('./commands/keyCommandInsertNewline');
+var keyCommandInsertNewLine = require('keyCommandInsertNewline');
 
 // When nothing is focused, Firefox regards two characters, `'` and `/`, as
 // commands that should open and focus the "quickfind" search bar. This should
