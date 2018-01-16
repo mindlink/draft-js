@@ -26,6 +26,7 @@ const isEventHandled = require('isEventHandled');
 var isSelectionAtLeafStart = require('isSelectionAtLeafStart');
 var nullthrows = require('nullthrows');
 var setImmediate = require('setImmediate');
+var keyCommandInsertNewLine = require('./commands/keyCommandInsertNewline');
 
 // When nothing is focused, Firefox regards two characters, `'` and `/`, as
 // commands that should open and focus the "quickfind" search bar. This should
@@ -55,14 +56,34 @@ function replaceText(
   inlineStyle: DraftInlineStyle,
   entityKey: ?string,
 ): EditorState {
+  var enterNewline = false;
+  if (text.endsWith('\n')) {
+    text = text.substring(0, text.length - 1);
+    enterNewline = true;
+  }
+
   var contentState = DraftModifier.replaceText(
     editorState.getCurrentContent(),
     editorState.getSelection(),
     text,
     inlineStyle,
-    entityKey,
-  );
-  return EditorState.push(editorState, contentState, 'insert-characters');
+    entityKey);
+  var stateWithChars = EditorState.push(
+    editorState,
+    contentState,
+    'insert-characters');
+
+  if (enterNewline) {
+    var stateWithTrailingNewline = keyCommandInsertNewLine(stateWithChars);
+    var adjustedSelection = stateWithTrailingNewline.getSelection().merge({
+      anchorKey: contentState.getSelectionAfter().anchorKey,
+      focusKey: contentState.getSelectionAfter().anchorKey});  
+    var stateWithAdjustedSelection = EditorState.acceptSelection(stateWithTrailingNewline, adjustedSelection);
+    
+    return stateWithAdjustedSelection;
+  }
+
+  return stateWithChars;
 }
 
 /**
