@@ -181,6 +181,12 @@ var DraftEditorCompositionHandler = {
       editorState.getSelection(),
     );
 
+    var domSelection = window.getSelection();
+    var originalDomSelection = {
+      anchorOffset: domSelection.anchorOffset,
+      focusOffset: domSelection.focusOffset
+    }
+
     const mustReset =
       !composedChars ||
       isSelectionAtLeafStart(editorState) ||
@@ -219,6 +225,16 @@ var DraftEditorCompositionHandler = {
         currentStyle,
         entityKey,
       );
+
+      if (isAndroid && contentState.getSelectionAfter().anchorOffset > originalDomSelection.anchorOffset) {
+        var startOffset = Math.min(originalDomSelection.anchorOffset, originalDomSelection.focusOffset);
+        var endOffset = startOffset + Math.abs(originalDomSelection.focusOffset - originalDomSelection.anchorOffset);
+        contentState = contentState.merge({
+          selectionBefore: contentState.getSelectionAfter(),
+          selectionAfter: selection.merge({
+            anchorOffset: startOffset,
+            focusOffset: endOffset })});
+      }
       editor.update(
         EditorState.push(editorState, contentState, 'insert-characters'),
       );
