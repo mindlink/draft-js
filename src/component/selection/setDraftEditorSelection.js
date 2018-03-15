@@ -51,9 +51,9 @@ function anonymizeTextWithin(
     var length = node.textContent.length;
     return document.createTextNode(
       '[text ' +
-        length +
-        (labels.length ? ' | ' + labels.join(', ') : '') +
-        ']',
+      length +
+      (labels.length ? ' | ' + labels.join(', ') : '') +
+      ']',
     );
   }
 
@@ -143,71 +143,10 @@ function setDraftEditorSelection(
 
   var hasFocus =
     focusKey === blockKey && nodeStart <= focusOffset && nodeEnd >= focusOffset;
-
-  // If the selection is entirely bound within this node, set the selection
-  // and be done.
-  if (hasAnchor && hasFocus) {
-    selection.removeAllRanges();
-    addPointToSelection(
-      selection,
-      node,
-      anchorOffset - nodeStart,
-      selectionState,
-    );
-    addFocusToSelection(
-      selection,
-      node,
-      focusOffset - nodeStart,
-      selectionState,
-    );
-    return;
-  }
-
-  if (!isBackward) {
-    // If the anchor is within this node, set the range start.
-    if (hasAnchor) {
-      selection.removeAllRanges();
-      addPointToSelection(
-        selection,
-        node,
-        anchorOffset - nodeStart,
-        selectionState,
-      );
-    }
-
-    // If the focus is within this node, we can assume that we have
-    // already set the appropriate start range on the selection, and
-    // can simply extend the selection.
-    if (hasFocus) {
-      addFocusToSelection(
-        selection,
-        node,
-        focusOffset - nodeStart,
-        selectionState,
-      );
-    }
-  } else {
-    // If this node has the focus, set the selection range to be a
-    // collapsed range beginning here. Later, when we encounter the anchor,
-    // we'll use this information to extend the selection.
-    if (hasFocus) {
-      selection.removeAllRanges();
-      addPointToSelection(
-        selection,
-        node,
-        focusOffset - nodeStart,
-        selectionState,
-      );
-    }
-
-    // If this node has the anchor, we may assume that the correct
-    // focus information is already stored on the selection object.
-    // We keep track of it, reset the selection range, and extend it
-    // back to the focus point.
-    if (hasAnchor) {
-      var storedFocusNode = selection.focusNode;
-      var storedFocusOffset = selection.focusOffset;
-
+  try {
+    // If the selection is entirely bound within this node, set the selection
+    // and be done.
+    if (hasAnchor && hasFocus) {
       selection.removeAllRanges();
       addPointToSelection(
         selection,
@@ -217,11 +156,87 @@ function setDraftEditorSelection(
       );
       addFocusToSelection(
         selection,
-        storedFocusNode,
-        storedFocusOffset,
+        node,
+        focusOffset - nodeStart,
         selectionState,
       );
+      return;
     }
+
+    if (!isBackward) {
+      // If the anchor is within this node, set the range start.
+      if (hasAnchor) {
+        selection.removeAllRanges();
+        addPointToSelection(
+          selection,
+          node,
+          anchorOffset - nodeStart,
+          selectionState,
+        );
+      }
+
+      // If the focus is within this node, we can assume that we have
+      // already set the appropriate start range on the selection, and
+      // can simply extend the selection.
+      if (hasFocus) {
+        addFocusToSelection(
+          selection,
+          node,
+          focusOffset - nodeStart,
+          selectionState,
+        );
+      }
+    } else {
+      // If this node has the focus, set the selection range to be a
+      // collapsed range beginning here. Later, when we encounter the anchor,
+      // we'll use this information to extend the selection.
+      if (hasFocus) {
+        selection.removeAllRanges();
+        addPointToSelection(
+          selection,
+          node,
+          focusOffset - nodeStart,
+          selectionState,
+        );
+      }
+
+      // If this node has the anchor, we may assume that the correct
+      // focus information is already stored on the selection object.
+      // We keep track of it, reset the selection range, and extend it
+      // back to the focus point.
+      if (hasAnchor) {
+        var storedFocusNode = selection.focusNode;
+        var storedFocusOffset = selection.focusOffset;
+
+        selection.removeAllRanges();
+        addPointToSelection(
+          selection,
+          node,
+          anchorOffset - nodeStart,
+          selectionState,
+        );
+        addFocusToSelection(
+          selection,
+          storedFocusNode,
+          storedFocusOffset,
+          selectionState,
+        );
+      }
+    }
+  } catch (e) {
+    // Logging to catch error that is thrown by call to 'selection.removeAllRanges()'
+    // caused by selection being IE10.
+    DraftJsDebugLogging.logSelectionStateFailure({
+      anonymizedDom: getAnonymizedEditorDOM(node),
+      extraParams: JSON.stringify({
+        anchorKey: anchorKey,
+        anchorOffset: anchorOffset,
+        focusKey: focusKey,
+        focusOffset: focusOffset,
+        isBackward: isBackward
+      }),
+      selectionState: JSON.stringify(selectionState.toJS())
+    });
   }
 }
 
@@ -247,7 +262,7 @@ function addFocusToSelection(
       // the call to 'selection.extend' is about to throw
       DraftJsDebugLogging.logSelectionStateFailure({
         anonymizedDom: getAnonymizedEditorDOM(node),
-        extraParams: JSON.stringify({offset: offset}),
+        extraParams: JSON.stringify({ offset: offset }),
         selectionState: JSON.stringify(selectionState.toJS()),
       });
     }
@@ -326,7 +341,7 @@ function addPointToSelection(
     // in this case we know that the call to 'range.setStart' is about to throw
     DraftJsDebugLogging.logSelectionStateFailure({
       anonymizedDom: getAnonymizedEditorDOM(node),
-      extraParams: JSON.stringify({offset: offset}),
+      extraParams: JSON.stringify({ offset: offset }),
       selectionState: JSON.stringify(selectionState.toJS()),
     });
   }
