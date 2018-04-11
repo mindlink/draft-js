@@ -15,12 +15,14 @@
 
 import type DraftEditor from 'DraftEditor.react';
 
+const DraftFeatureFlags = require('DraftFeatureFlags');
 const DraftModifier = require('DraftModifier');
 const EditorState = require('EditorState');
 const Keys = require('Keys');
 const UserAgent = require('UserAgent');
 
 const getEntityKeyForSelection = require('getEntityKeyForSelection');
+const isEventHandled = require('isEventHandled');
 const isSelectionAtLeafStart = require('isSelectionAtLeafStart');
 const isAndroid = UserAgent.isPlatform('Android');
 
@@ -210,6 +212,15 @@ var DraftEditorCompositionHandler = {
     }
 
     if (composedChars) {
+      if (
+        DraftFeatureFlags.draft_handlebeforeinput_composed_text &&
+        editor.props.handleBeforeInput &&
+        isEventHandled(
+          editor.props.handleBeforeInput(composedChars, editorState),
+        )
+      ) {
+        return;
+      }
       // If characters have been composed, re-rendering with the update
       // is sufficient to reset the editor.
       contentState = DraftModifier.replaceText(
