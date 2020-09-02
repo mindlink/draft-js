@@ -36,27 +36,35 @@ function getSelectionForEvent(
   let node: ?Node = null;
   let offset: ?number = null;
 
-  const eventTargetDocument = getCorrectDocumentFromNode(event.currentTarget);
-  /* $FlowFixMe[prop-missing] (>=0.68.0 site=www,mobile) This comment
-   * suppresses an error found when Flow v0.68 was deployed. To see the error
-   * delete this comment and run Flow. */
+  var eventTargetDocument = getCorrectDocumentFromNode(event.currentTarget);
+  /* $FlowFixMe(>=0.68.0 site=www,mobile) This comment suppresses an error
+    * found when Flow v0.68 was deployed. To see the error delete this comment
+    * and run Flow. */
   if (typeof eventTargetDocument.caretRangeFromPoint === 'function') {
-    /* $FlowFixMe[incompatible-use] (>=0.68.0 site=www,mobile) This comment
-     * suppresses an error found when Flow v0.68 was deployed. To see the error
-     * delete this comment and run Flow. */
-    const dropRange = eventTargetDocument.caretRangeFromPoint(event.x, event.y);
+    /* $FlowFixMe(>=0.68.0 site=www,mobile) This comment suppresses an error
+    * found when Flow v0.68 was deployed. To see the error delete this comment
+    * and run Flow. */
+    var dropRange = eventTargetDocument.caretRangeFromPoint(event.x, event.y);
     node = dropRange.startContainer;
     offset = dropRange.startOffset;
   } else if (event.rangeParent) {
     node = event.rangeParent;
     offset = event.rangeOffset;
+  } else if (window.getSelection) {
+    node = event.target;
+    var selection = window.getSelection();
+    var range = selection.getRangeAt && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    // If the range is collapsed, drag and drop occurred within the input.
+    // Otherwise it is from outside the input and we can't get where the user is positioned so copy to the end.
+    offset = range && range.collapsed ? selection.focusOffset : event.srcElement.innerText.length;
   } else {
     return null;
   }
 
   node = nullthrows(node);
   offset = nullthrows(offset);
-  const offsetKey = nullthrows(findAncestorOffsetKey(node));
+  var offsetKey = nullthrows(findAncestorOffsetKey(node));
 
   return getUpdatedSelectionState(
     editorState,
@@ -74,6 +82,13 @@ const DraftEditorDragHandler = {
   onDragEnd: function(editor: DraftEditor): void {
     editor.exitCurrentMode();
     endDrag(editor);
+  },
+
+  /**
+   * Handle on drag over event.
+   */
+  onDragOver: function onDragOver(editor: DraftEditor, e: Object): void {
+    e.preventDefault();
   },
 
   /**
