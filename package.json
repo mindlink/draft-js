@@ -20,7 +20,6 @@
   "repository": "facebook/draft-js",
   "license": "MIT",
   "scripts": {
-    "prepublish": "npm run build",
     "pretest": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
     "build": "gulp",
     "dev": "gulp dev",
