@@ -80,10 +80,6 @@
     "vinyl-buffer": "^1.0.0",
     "webpack-stream": "^3.0.0"
   },
-  "devEngines": {
-    "node": "6.x",
-    "npm": "2.x || 3.x"
-  },
   "jest": {
     "automock": true,
     "globals": {
